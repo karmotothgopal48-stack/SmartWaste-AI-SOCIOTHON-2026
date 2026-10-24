@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/* Design tokens — see docs/DESIGN_SYSTEM.md. Raw values for charts live in src/lib/theme.js. */
+@theme {
+  --color-bg: #06100C;
+  --color-surface-1: #0B1912;
+  --color-surface-2: #0F2219;
+  --color-hair: rgba(255, 255, 255, 0.06);
+  --color-strong: rgba(255, 255, 255, 0.12);
+
+  --color-ink: #ECFDF5;
+  --color-ink-muted: #94A3A0;
+  --color-ink-faint: #7B8C87; /* ≥ 4.5:1 on every surface (WCAG AA) */
+
+  --color-primary: #10B981;
+  --color-primary-hover: #22C993;
+  --color-danger-hover: #F25555;
+  --color-primary-glow: rgba(16, 185, 129, 0.35);
+  --color-accent: #A3E635;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+
+  --color-cat-organic: #22C55E;
+  --color-cat-plastic: #38BDF8;
+  --color-cat-paper: #FACC15;
+  --color-cat-metal: #94A3B8;
+  --color-cat-other: #A78BFA;
+
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Type scale (font-size only; line-height comes from context). Larger display sizes are one-offs. */
+  --text-micro: 11px;   /* badges, axis ticks, overlines */
+  --text-caption: 12px; /* labels, captions, chips */
+  --text-small: 13px;   /* table cells, buttons, secondary body */
+  --text-body: 14px;    /* body, inputs */
+  --text-title: 16px;   /* card titles */
+  --text-heading: 18px; /* modal / empty-state titles */
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    font-size: 14px;
+  }
+  ::selection {
+    background: rgba(16, 185, 129, 0.35);
+  }
+  /* Keyboard focus: an outline follows each element's own radius (pills stay pills). */
+  :focus-visible {
+    outline: 2px solid rgba(16, 185, 129, 0.75);
+    outline-offset: 2px;
+  }
+  /* Tailwind v4 no longer sets a pointer cursor on buttons. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  label:has(> input[type='radio']),
+  select {
+    cursor: pointer;
+  }
+  input[type='date']::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  input[type='date']::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+  /* Thin dark scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+}
+
+@layer components {
+  /* Glass card — the core surface */
+  .glass {
+    background: linear-gradient(180deg, rgba(15, 34, 25, 0.72), rgba(11, 25, 18, 0.72));
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid var(--color-hair);
+    border-radius: 16px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      inset 0 0 24px rgba(16, 185, 129, 0.04),
+      0 10px 30px -12px rgba(0, 0, 0, 0.6);
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  }
+  .glass-hover:hover {
+    border-color: rgba(16, 185, 129, 0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      inset 0 0 24px rgba(16, 185, 129, 0.06),
+      0 0 0 1px rgba(16, 185, 129, 0.1),
+      0 12px 40px -12px rgba(16, 185, 129, 0.35);
+    transform: translateY(-2px);
+  }
+  /* 1px emerald top-edge highlight for featured cards */
+  .edge-glow {
+    position: relative;
+  }
+  .edge-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0 16px auto 16px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #10B981, transparent);
+    opacity: 0.4;
+  }
+
+  .label-caps {
+    @apply text-caption font-semibold uppercase tracking-[0.12em] text-ink-muted;
+  }
+
+  /* Background layers */
+  .grid-overlay {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+  }
+  .orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(120px);
+    will-change: transform;
+  }
+  .orb-1 { animation: orb-drift-1 24s ease-in-out infinite alternate; }
+  .orb-2 { animation: orb-drift-2 28s ease-in-out infinite alternate; }
+  .orb-3 { animation: orb-drift-3 20s ease-in-out infinite alternate; }
+
+  .skeleton {
+    @apply rounded-[10px] bg-surface-2;
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+}
+
+/* Hero illustration (SVG). view-box origin keeps rotation centred on the 240×240 canvas. */
+.hero-illustration .orbit {
+  transform-box: view-box;
+  transform-origin: 120px 120px;
+  animation: spin 20s linear infinite;
+}
+.hero-illustration .leaf-float {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: leaf-float 6s ease-in-out infinite;
+}
+.hero-illustration .orbit-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse-core 5s ease-in-out infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes leaf-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(-3deg); }
+}
+@keyframes pulse-core {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+@keyframes orb-drift-1 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(40px, 30px) scale(1.1); }
+}
+@keyframes orb-drift-2 {
+  from { transform: translate(0, 0) scale(1.05); }
+  to   { transform: translate(-40px, -30px) scale(1); }
+}
+@keyframes orb-drift-3 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(30px, -40px) scale(1.1); }
+}
+@keyframes row-flash {
+  0%, 30% { background-color: rgba(16, 185, 129, 0.16); box-shadow: inset 3px 0 0 #10B981; }
+  100% { background-color: transparent; box-shadow: inset 3px 0 0 transparent; }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb-1, .orb-2, .orb-3, .skeleton,
+  .hero-illustration .orbit, .hero-illustration .leaf-float, .hero-illustration .orbit-pulse { animation: none; }
+}

@@ -1,0 +1,26 @@
+# Dependencies & environments
+node_modules/
+.venv/
+venv/
+
+# Build output & caches
+dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+.vite/
+
+# Local data (the backend re-seeds an empty database on startup)
+backend/data/*.db
+backend/data/*.db-*
+
+# Secrets / local config
+.env
+.env.local
+*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
